@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit-1.7.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+<!--加载多个propertise，需要添加ignore-unresolvable属性-->
+    <context:property-placeholder location="classpath:/config/rabbitMQ.properties" ignore-unresolvable="true"/>
+<!--定义rabbit连接-->
+    <rabbit:connection-factory id="connectionFactory" host="localhost" port="${rabbit.port}"
+                               username="${rabbit.username}" password="${rabbit.password}"/>
+<!--创建connectionFactory
+    <bean class="com.rabbitmq.client.ConnectionFactory" id="connectionFactory2">
+        <property name="host" value="localhost"/>
+        <property name="port" value="${rabbit.port}"/>
+        <property name="username" value="${rabbit.username}"/>
+        <property name="password" value="${rabbit.password}"/>
+    </bean>
+-->
+
+<!--创建rabbitMQ admin对象用来进行管理操作  org.springframework.amqp.rabbit.core.RabbitAdmin-->
+    <rabbit:admin connection-factory="connectionFactory"/>
+
+<!--消息转换器-->
+    <bean id="messageConverter" class="org.springframework.amqp.support.converter.Jackson2JsonMessageConverter"/>
+
+    <!--    定义rabbit模板，用来进行发送，接受操作  exchange="rabbitExchange"配置默认的exchange-->
+    <rabbit:template connection-factory="connectionFactory" id="rabbitTemplate" message-converter="messageConverter"/>
+
+<!--设置队列 durable：是否持久化；auto-delete:消费者全部断开后是否删除；exclusive：创建者可以使用的私有队列-->
+    <rabbit:queue id="queue1" name="queue1" durable="true" auto-delete="false" exclusive="false"/>
+
+<!--    设置路由模式，以及绑定key-->
+    <rabbit:direct-exchange name="directExchange" auto-delete="false" durable="true" id="directExchange">
+        <rabbit:bindings>
+            <rabbit:binding queue="queue1" key="queue1"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <bean id="queueListenter" class="com.liu.rabbitMQ.QueueListenter"/>
+
+<!--    绑定监听器-->
+    <rabbit:listener-container connection-factory="connectionFactory" acknowledge="auto">
+        <rabbit:listener ref="queueListenter" queues="queue1"/>
+    </rabbit:listener-container>
+</beans>

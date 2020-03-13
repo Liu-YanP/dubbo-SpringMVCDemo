@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+       http://dubbo.apache.org/schema/dubbo
+       http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
+
+    <!--先扫描controller，后开启dubbo注解扫描，否则空指针报错-->
+
+    <!--提供方应用信息-->
+    <dubbo:application name="test-provider"/>
+
+    <!--服务注册地址-->
+    <dubbo:registry address="zookeeper://localhost:2181" client="zkclient" check="false"/>
+
+    <!--端口-->
+    <dubbo:protocol name="dubbo" port="20880"/>
+
+    <dubbo:annotation package="com.liu"/>
+
+    <!--提供的服务接口
+    <dubbo:service interface="com.liu.service.ITestService" ref="testService"/>
+    <dubbo:service interface="com.liu.service.IUserService" ref="userService"/>-->
+
+    <!--通过bean
+    <bean id="testService" class="com.liu.serviceImpl.TestService"/>
+    <bean id="userService" class="com.liu.serviceImpl.UserService"/>-->
+
+    <!--需要消费的服务
+    <dubbo:reference interface="com.liu.service.IConService" id="conService" check="false"/>-->
+</beans>
