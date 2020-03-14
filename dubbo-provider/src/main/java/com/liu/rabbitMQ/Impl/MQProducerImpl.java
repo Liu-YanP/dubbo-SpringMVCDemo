@@ -20,14 +20,14 @@ public class MQProducerImpl implements MQProducer {
 
     /**
      * 数据发送方法
-     * @param queueKey 绑定的路由
+     * @param routerKey 绑定的路由
      * @param object  发送的对象
      */
     @Override
-    public void sendDataToQueue(String queueKey, Object object) {
+    public void sendDataToQueue(String exchange,String routerKey, Object object) {
         try {
             logger.info("向队列发送了一条消息！");
-            rabbitTemplate.convertAndSend("directExchange","queue1",object);
+            rabbitTemplate.convertAndSend(exchange,routerKey,object);
         }catch (Exception e){
             e.printStackTrace();
         }

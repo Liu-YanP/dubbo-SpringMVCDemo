@@ -32,6 +32,9 @@
 <!--设置队列 durable：是否持久化；auto-delete:消费者全部断开后是否删除；exclusive：创建者可以使用的私有队列-->
     <rabbit:queue id="queue1" name="queue1" durable="true" auto-delete="false" exclusive="false"/>
 
+    <rabbit:queue id="topicQueue1" name="topicQueue1"  auto-delete="false" durable="true"/>
+    <rabbit:queue id="topicQueue2" name="topicQueue2"  auto-delete="false" durable="true"/>
+
 <!--    设置路由模式，以及绑定key-->
     <rabbit:direct-exchange name="directExchange" auto-delete="false" durable="true" id="directExchange">
         <rabbit:bindings>
@@ -39,10 +42,22 @@
         </rabbit:bindings>
     </rabbit:direct-exchange>
 
+<!--    定义一个topic交换机 绑定key-->
+    <rabbit:topic-exchange name="topicExchange" id="topicExchange" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <rabbit:binding pattern="top.*" queue="topicQueue1"/>
+            <rabbit:binding pattern="topic.#" queue="topicQueue2"/>
+        </rabbit:bindings>
+    </rabbit:topic-exchange>
+
     <bean id="queueListenter" class="com.liu.rabbitMQ.QueueListenter"/>
+    <bean id="topicQueueListenter" class="com.liu.rabbitMQ.TopicQueueListenter"/>
 
 <!--    绑定监听器-->
-    <rabbit:listener-container connection-factory="connectionFactory" acknowledge="auto">
-        <rabbit:listener ref="queueListenter" queues="queue1"/>
+    <rabbit:listener-container connection-factory="connectionFactory" acknowledge="auto" >
+        <!--rabbit:listener ref="queueListenter" queues="queue1"/-->
+        <rabbit:listener ref="queueListenter" queues="topicQueue1,topicQueue2,queue1"/>
     </rabbit:listener-container>
+    
+    
 </beans>

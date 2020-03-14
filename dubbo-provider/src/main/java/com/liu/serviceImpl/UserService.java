@@ -8,6 +8,8 @@ import com.liu.rabbitMQ.Impl.MQProducerImpl;
 import com.liu.redis.RedisService;
 import com.liu.redis.UserKey;
 import com.liu.service.IUserService;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -24,6 +26,9 @@ public class UserService implements IUserService {
     @Autowired
     private MQProducerImpl mqProducer;
 
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
     @Override
     public User getUserByName(String name) {
         //首先在redis中查找
@@ -38,7 +43,10 @@ public class UserService implements IUserService {
                  redisService.set(UserKey.getByName,name,user);
              }
         }
-        mqProducer.sendDataToQueue("queue1",user);
+        mqProducer.sendDataToQueue("topicExchange","top.1",user);//使用topicExchange交换机
+        mqProducer.sendDataToQueue("topicExchange","topic.",user);//使用topicExchange交换机
+        mqProducer.sendDataToQueue("directExchange","queue1",user);//使用directExchange交换机
+
         return user;
     }
 
