@@ -41,7 +41,7 @@
 
     <bean id="queueListenter" class="com.liu.rabbitMQ.QueueListenter"/>
 
-<!--    绑定监听器-->
+<!--    绑定监听器,可以绑定多个队列，使用逗号分隔-->
     <rabbit:listener-container connection-factory="connectionFactory" acknowledge="auto">
         <rabbit:listener ref="queueListenter" queues="queue1"/>
     </rabbit:listener-container>
