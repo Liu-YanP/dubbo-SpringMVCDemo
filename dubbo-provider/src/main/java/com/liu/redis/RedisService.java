@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+import java.util.*;
+
 @Component
 public class RedisService {
     Logger logger = LoggerFactory.getLogger(RedisService.class);
@@ -19,6 +21,93 @@ public class RedisService {
     @Autowired
     public RedisService(JedisPool jedisPool) {
         this.jedisPool = jedisPool;
+    }
+
+    public List<String> getKey(String pattern){
+        Jedis jedis = null;
+        List<String> list=null;
+        try {
+            jedis = jedisPool.getResource();
+            Set<String> keys = jedis.keys(pattern);
+            list = new ArrayList<>(keys);
+            return list;
+        }finally {
+            returnToPool(jedis);
+        }
+    }
+
+    /**
+     * 取两个集合的交集
+     * @param prefix1
+     * @param key1
+     * @param prefix2
+     * @param key2
+     * @param clazz
+     * @param <T>
+     * @return
+     */
+    public <T> List<T> sInter(KeyPrefix prefix1,String key1,KeyPrefix prefix2,String key2,Class<T> clazz){
+        Jedis jedis = null;
+        List<T> list = null;
+        try{
+            jedis = jedisPool.getResource();
+            String realKey1 = prefix1.getPrefix()+"["+key1+"]";
+            String realKey2 = prefix2.getPrefix()+"["+key2+"]";
+            Set<String> sinter = jedis.sinter(realKey1, realKey2);
+            for (String s : sinter) {
+                list.add(stringToBean(s,clazz));
+            }
+            return list;
+        }finally {
+            returnToPool(jedis);
+        }
+    }
+
+    /**
+     * 集合读取操作
+     * @param prefix
+     * @param key
+     * @param data
+     * @param <T>
+     * @return
+     */
+    public <T> List<T> sGet(KeyPrefix prefix, String key, Class<T> data){
+        Jedis jedis = null;
+        List<T> list = null;
+        try {
+            jedis = jedisPool.getResource();
+            String realKey = prefix.getPrefix()+"["+key+"]";
+            Set<String> members = jedis.smembers(realKey);  //取出set中全部集合
+            for (String member : members) {
+                T t = stringToBean(member, data);
+                list.add(t);
+            }
+            return list;
+        }finally {
+            returnToPool(jedis);
+        }
+    }
+
+    /**
+     * 向set集合添加元素
+     * @param prefix
+     * @param key
+     * @param value
+     * @return
+     */
+    public <T> Long sAdd(KeyPrefix prefix,String key,T value){
+        Jedis jedis = null;
+        try {
+            jedis=jedisPool.getResource();
+            String realKey = prefix.getPrefix()+"["+key+"]";
+            logger.info("set添加的realKey:"+realKey);
+            String str = beanToString(value);
+            Long result = jedis.sadd(realKey, str);
+            logger.info("set集合添加了"+result+"条数据");
+            return result;
+        }finally {
+            this.returnToPool(jedis);
+        }
     }
 
     /**

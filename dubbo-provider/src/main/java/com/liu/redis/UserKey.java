@@ -10,4 +10,9 @@ public class UserKey extends BasePrefix {
 
    public static UserKey getById = new UserKey("id");
    public static UserKey getByName = new UserKey("name");
+
+    public static UserKey UserIdTable = new UserKey("UserId_Data");
+    public static UserKey UserNameIdTable = new UserKey("UserName_ID");
+    public static UserKey UserAgeIdTable = new UserKey("UserAge_ID");
+
 }

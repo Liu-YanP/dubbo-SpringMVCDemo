@@ -41,4 +41,12 @@ public class UserController {
         }
         return BaseResponse.success(user);
     }
+
+    @RequestMapping("/getUsers")
+    @ResponseBody
+    public BaseResponse<List<User>> getUsersByNameAndAge(@RequestParam("name") String name,@RequestParam("age") String age){
+        List<User> userList = userService.getUser(name,age);
+        if (userList!=null) return BaseResponse.success(userList);
+        return BaseResponse.error("查询不到用户！");
+    }
 }

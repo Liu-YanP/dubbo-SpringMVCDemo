@@ -6,9 +6,12 @@ import java.util.List;
 
 public interface IUserService {
 
+    //通过多种方式查找user
+    List<User> getUser(String... args);
+
     //通过用户名获取用户
-    public User getUserByName(String name);
+    User getUserByName(String name);
 
     //列出所有用户
-    public List<User> listUser();
+    List<User> listUser();
 }

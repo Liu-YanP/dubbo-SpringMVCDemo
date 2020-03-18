@@ -53,7 +53,8 @@
     <bean id="queueListenter" class="com.liu.rabbitMQ.QueueListenter"/>
     <bean id="topicQueueListenter" class="com.liu.rabbitMQ.TopicQueueListenter"/>
 
-<!--    绑定监听器-->
+
+<!--    绑定监听器,可以绑定多个队列，使用逗号分隔-->
     <rabbit:listener-container connection-factory="connectionFactory" acknowledge="auto" >
         <!--rabbit:listener ref="queueListenter" queues="queue1"/-->
         <rabbit:listener ref="queueListenter" queues="topicQueue1,topicQueue2,queue1"/>

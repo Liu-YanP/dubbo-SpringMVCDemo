@@ -12,6 +12,7 @@
                 <bean class="com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor"/>
             </array>
         </property>
+        <property name="mapperLocations" value="classpath*:com/liu/dao/Mapper/*Mapper.xml"/>
     </bean>
 
     <bean class="com.baomidou.mybatisplus.core.config.GlobalConfig" id="globalConfig">
